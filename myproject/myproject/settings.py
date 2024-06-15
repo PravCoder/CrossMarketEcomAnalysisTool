@@ -41,8 +41,12 @@ INSTALLED_APPS = [
     # 👇 Add here your installed app's
     'rest_framework',
     'corsheaders',
-    'myapi',
+    # 'myapi',
+    'myapi.apps.MyapiConfig',   # adding base-app
 ]
+
+AUTH_USER_MODEL = "myapi.User"   # defining the custom-user-model app.ModelName
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

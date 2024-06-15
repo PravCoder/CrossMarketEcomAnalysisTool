@@ -6,3 +6,5 @@ from rest_framework.response import Response
 def home(request):
     print("get request as been sent!!!!")
     return Response({"message":"This is some message"})
+
+
