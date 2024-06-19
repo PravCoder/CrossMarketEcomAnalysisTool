@@ -3,14 +3,23 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.contrib.auth import authenticate, login
 from .models import User
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.decorators import api_view
+from rest_framework_simplejwt.tokens import RefreshToken
+from .serializers import UserSerializer
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import api_view, permission_classes
 
 @api_view(["GET"])
 def home(request):
-    print("get request as been sent!!!!")
-    return Response({"message":"This is some message"})
+    print(f"USER: {request.user}")
+    for user in User.objects.all():
+        print(user)
+    return Response({"message":request.user.username})
 
 @api_view(["POST"])
-def login(request):
+def login_view(request):
     email = request.data["email"]
     password = request.data["password"]
 
@@ -23,18 +32,36 @@ def login(request):
     else:
         return Response({'message': 'Incorrect login credentials, please try again'})
     
+
+  
 @api_view(["POST"])
 def register(request):
+
     print(request.data)
+    email = request.data["email"]
     first_name = request.data["first_name"]
     last_name = request.data["last_name"]
-    email = request.data["email"]
     password = request.data["password"]
 
-    if None not in [first_name, last_name, email, password]:
-        new_user = User.objects.create(first_name=first_name, last_name=last_name, email=email, password=password)  # if there is error in this like email exists, 2nd return occurs
-        new_user.save()
-        # TBD: login in the new user
-        return Response({"message":"Registration successful"})
-        
-    return Response({"message":"Registration unsuccesful"})
+    serializer = UserSerializer(data=request.data)
+    print("!...FLAG1...!" + str(serializer.is_valid()))
+    if serializer.is_valid():
+        # Save user object
+        print("!...FLAG2...!")
+        user = serializer.save()
+        print("!...FLAG3...!")
+        # Authenticate user
+        user = authenticate(request=request._request, username=user.email, password=request.data['password'])
+        print("!...FLAG4...!"+str(user))
+        if user:
+            print("!...FLAG5...!")
+            login(request._request, user)
+            print("!...FLAG1...!")
+            return Response({"message": "Registration successful and user logged in."}, status=status.HTTP_201_CREATED)
+        else:
+            # Authentication failed, return error response
+            return Response({"message": "Unable to log in user."}, status=status.HTTP_400_BAD_REQUEST)
+    else:
+        # Invalid serializer data, return error response
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+

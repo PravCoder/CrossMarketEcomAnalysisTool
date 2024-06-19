@@ -27,8 +27,13 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ]
+}
 
-# Application definition
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -41,11 +46,16 @@ INSTALLED_APPS = [
     # 👇 Add here your installed app's
     'rest_framework',
     'corsheaders',
+
     # 'myapi',
     'myapi.apps.MyapiConfig',   # adding base-app
+
+    # # jwt stuff
+    'rest_framework_simplejwt',
 ]
 
 AUTH_USER_MODEL = "myapi.User"   # defining the custom-user-model app.ModelName
+
 
 
 MIDDLEWARE = [
