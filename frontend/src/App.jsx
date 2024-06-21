@@ -6,6 +6,7 @@ import Home from "./pages/Home";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Foo from "./pages/Foo";
+import Navbar from "./components/Navbar";
 
 function Logout() {
   localStorage.clear(); // when we logout we clear our refresh/access tokens
@@ -20,9 +21,11 @@ function RegisterAndLogout() {
 function App() {
 
   return (
+    
     <BrowserRouter>
+      <Navbar />
       <Routes>
-
+        
         {/* home-route is protected so you need valid access token to view home-component */} 
         <Route path="/" element={<ProtectedRoute> <Home /> </ProtectedRoute>}/>
         {/* login-route is not protected because you can visit it any time */} 

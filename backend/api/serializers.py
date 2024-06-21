@@ -17,7 +17,7 @@ class UserSerializer(serializers.ModelSerializer):
         first_name = validated_data["first_name"]
         last_name = validated_data["last_name"]
         print("DOES THIS EVERY GET PRINTED")
-        new_user = User(email=email, username=email,  password=password, first_name=first_name, last_name=last_name)  # create new user-obj using form-fields
+        new_user = User(email=email, username=email,  password=password, first_name=first_name, last_name=last_name)  # create new user-obj using form-fields, set username=email, becauwe it is not in the form
         new_user.set_password(password)             # hash the plain-text password before saving to users.password in db
         new_user.save()
         print("\nDOES THIS EVERY GET PRINTED"+str(new_user))

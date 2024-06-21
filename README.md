@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This project is designed for dropshippers and e-commerce sellers who operate in highly competitive markets, where price and stock availability are critical differentiators. By leveraging real-time data, sellers can strategically adjust their prices to remain competitive: lowering prices when necessary and increasing them when competitors are out of stock or have lowered their prices. Additionally, this tool benefits consumers seeking the lowest prices for products.
+This project is designed for dropshippers and e-commerce sellers who operate in highly competitive markets, where price and stock availability are critical differentiators. By leveraging real-time data, sellers can strategically adjust their prices to remain competitive: lowering prices when necessary and increasing them when competitors are out of stock or have lowered their prices. Additionally, this tool benefits consumers seeking the lowest prices for products across multiple websites like Amazon, Ebay, etc.
 
 ## Functionality
 

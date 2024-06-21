@@ -1,0 +1,45 @@
+/* Reset the margin and padding of the body */
+body {
+    margin: 0;
+    padding: 0;
+    padding-top: 60px; /* Adjust this value if necessary to match the height of your navbar */
+}
+
+/* Navbar styles */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #333;
+    padding: 10px 20px; /* Original padding */
+    position: fixed;
+    width: 100%;
+    top: 0;
+    z-index: 1000;
+    font-size: 1em; /* Original font size */
+}
+
+.navbar-left {
+    display: flex;
+}
+
+.navbar-right {
+    display: flex;
+    margin-left: auto;
+    padding-right: 40px; /* Add right padding */
+}
+
+.navbar-link {
+    color: white;
+    text-decoration: none;
+    margin: 0 10px; /* Original margin */
+}
+
+.navbar-link:hover {
+    text-decoration: underline;
+}
+
+/* Adjust the padding-top of the body to avoid content being hidden behind the navbar */
+body {
+    padding-top: 60px; /* Adjust this value if necessary */
+}
