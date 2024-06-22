@@ -1,24 +1,30 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import "../styles/Home.css";
 import api from "../api";
+import { Link } from 'react-router-dom';
 
 function Home() {
-    const [url, setUrl] = useState('');
-    const [products, setProducts] = useState([
-        { id: 1, name: 'Product 1', price: '$100', site: 'Amazon', url: 'https://www.amazon.com/product1' },
-        { id: 2, name: 'Product 2', price: '$200', site: 'eBay', url: 'https://www.ebay.com/product2' },
-        { id: 3, name: 'Product 3', price: '$150', site: 'Walmart', url: 'https://www.walmart.com/product3' }
-    ]);
+    const [url, setUrl] = useState("");
+    const [products, setProducts] = useState();
+
+    useEffect(() => {
+        api.get("/api/get-tracked-products/")
+          .then(response => {
+              setProducts(response.data.tracked_products);  // response-obj.data.key = value
+          })
+          .catch(error => {
+            console.log(error);
+          });
+    }, [])
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
             const res = await api.post("/api/", { url });
-            // Handle API response if needed
+            setProducts(res.data.tracked_products)
         } catch (error) {
             alert(error);
         } finally {
-            // Clear input after submission
             setUrl('');
         }
     };
@@ -36,13 +42,13 @@ function Home() {
 
             <h2>Currently Tracked Products</h2>
             <ul className="product-list">
-                {products.map(product => (
+                {products && products.map(product =>  (
                     <li key={product.id} className="product-item">
-                        <a href={product.url} target="_blank" rel="noopener noreferrer" className="product-link">
-                            <h3>{product.name}</h3>
-                            <p>Price: {product.price}</p>
-                            <p>Site: {product.site}</p>
-                        </a>
+                        <Link to={`view-product/${product.id}/`} className="product-link">
+                            <h3>{product.title}</h3>
+                            <p>Price: ${product.price}</p>
+                            <p>Site: {product.website}</p>
+                        </Link>
                     </li>
                 ))}
             </ul>

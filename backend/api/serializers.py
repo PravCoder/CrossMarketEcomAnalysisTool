@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User
+from .models import User, Product
 
 class UserSerializer(serializers.ModelSerializer):
 
@@ -22,4 +22,10 @@ class UserSerializer(serializers.ModelSerializer):
         new_user.save()
         print("\nDOES THIS EVERY GET PRINTED"+str(new_user))
         return new_user
+    
+
+class ProductSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Product
+        fields = ['id', 'title', 'price', 'UPC', 'website', 'url']  # Fields to include in the serialized output
     

@@ -14,6 +14,8 @@ class User(AbstractUser):
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["username"]  # No username required
 
+    tracked_products = models.ManyToManyField("Product", related_name="tracked_products", blank=True)
+
 class Product(models.Model):
     title = models.CharField(max_length=200,null=True)
     price = models.FloatField(default=0,null=True,blank=True)

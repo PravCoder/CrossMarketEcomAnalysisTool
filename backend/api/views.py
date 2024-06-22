@@ -1,9 +1,9 @@
 from django.shortcuts import render
 from rest_framework import generics
-from .serializers import UserSerializer
+from .serializers import UserSerializer, ProductSerializer
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from .models import  User
+from .models import  User, Product
 from rest_framework.response import Response
 # Selenium imports
 from selenium import webdriver
@@ -20,9 +20,18 @@ class CreateUserView(generics.CreateAPIView):
     serializer_class = UserSerializer
     permission_classes = [AllowAny]
 
+@api_view(["GET"]) 
+def get_tracked_products_home(request):  # to get all tracked products by use rin the home page
+    user = request.user
+    all_products = list(user.tracked_products.all())
+    products_serializer = ProductSerializer(all_products, many=True)  # list of dicts each dict represents a product-obj with its attributes as key/values
+    return Response({"tracked_products":products_serializer.data})
+
 @api_view(["POST"]) 
 def home(request):
     print(f"Post-request-data: {request.data}")
+    user = request.user
+    context = {}
     url = request.data["url"]  # get url from post-request
     website = "Amazon" if "amazon" in url else "Ebay" if "ebay" in url else None
     
@@ -62,16 +71,25 @@ def home(request):
         for i, label_element in enumerate(list(label_elements)):
             if label_element.text.strip() == "UPC":
                 upc = list(value_elements)[i].text.strip()
+        
+        new_product = Product(title=title, price=float(price), UPC=upc, website=website, url=url)
+        new_product.save()
+        user.tracked_products.add(new_product)
+        user.save()
+        all_products = list(user.tracked_products.all())
+        products_serializer = ProductSerializer(all_products, many=True)  # list of dicts each dict represents a product-obj with its attributes as key/values
+        context["tracked_products"] = products_serializer.data            # add to context
+        
+        print(f"Website: {new_product.website}")
+        print(f"Product Title: {new_product.title}")
+        print(f"Product Price: ${new_product.price}")
+        print(f"Product UPC: {new_product.UPC}")
     if website == "Ebay":
         pass
 
-    print(f"Website: {website}")
-    print(f"Product Title: {title}")
-    print(f"Product Price: ${price}")
-    print(f"Product UPC: {upc}")
     driver.quit()
-
-    return Response({})
+    print(f"Context: {context}")
+    return Response(context)
 
 @api_view(["GET"]) 
 def view_product(request):
