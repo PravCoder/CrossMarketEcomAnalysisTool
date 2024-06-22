@@ -6,6 +6,7 @@ import Home from "./pages/Home";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Foo from "./pages/Foo";
+import ViewProduct from "./pages/ViewProduct";
 import Navbar from "./components/Navbar";
 
 function Logout() {
@@ -34,6 +35,9 @@ function App() {
         <Route path="/logout" element={<Logout />}/>
 
         <Route path="/register" element={<RegisterAndLogout />}/>
+
+        <Route path="/view-product/:id" element={<ViewProduct />} /> 
+
         {/* render 404-page anytime any other path is visited */} 
         <Route path="*" element={<NotFound />}/>
 

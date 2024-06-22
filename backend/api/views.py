@@ -20,6 +20,7 @@ class CreateUserView(generics.CreateAPIView):
     serializer_class = UserSerializer
     permission_classes = [AllowAny]
 
+
 @api_view(["GET"]) 
 def get_tracked_products_home(request):  # to get all tracked products by use rin the home page
     user = request.user
@@ -92,9 +93,10 @@ def home(request):
     return Response(context)
 
 @api_view(["GET"]) 
-def view_product(request):
-    
-    return Response({})
+def view_product(request, pk):
+    product = request.user.tracked_products.filter(id=int(pk))[0]
+    prod_serializer = ProductSerializer(product)
+    return Response({"product":prod_serializer.data})
 
 # TESTING STUFF BELOW
 foo_db = ["foo1","foo1","foo1","foo1","foo1" ]

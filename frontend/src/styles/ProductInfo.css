@@ -1,0 +1,44 @@
+.product-info-container {
+    background-color: #f8f9fa;
+    border: 1px solid #ced4da;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.product-title {
+    font-size: 24px;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.product-price {
+    font-size: 18px;
+    color: #007bff;
+}
+
+.product-website {
+    font-size: 16px;
+    color: #666;
+}
+
+.product-upc {
+    font-size: 16px;
+    color: #666;
+}
+
+.product-button {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-top: 10px;
+}
+
+.product-button:hover {
+    background-color: #218838;
+}
