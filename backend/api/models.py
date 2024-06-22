@@ -13,15 +13,11 @@ class User(AbstractUser):
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["username"]  # No username required
-    
-class Note(models.Model):
-    title = models.CharField(max_length=100)
-    content = models.TextField()
-    created_at = models.DateTimeField(auto_now_add=True)
-    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name="notes")
 
-    def __str__(self):
-        return self.title
-
-
+class Product(models.Model):
+    title = models.CharField(max_length=200,null=True)
+    price = models.FloatField(default=0,null=True,blank=True)
+    UPC = models.CharField(max_length=200,null=True)
+    website = models.CharField(max_length=200,null=True)
+    url = models.CharField(max_length=1000,null=True)
 

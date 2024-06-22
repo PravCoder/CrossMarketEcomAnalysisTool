@@ -1,4 +1,4 @@
-#!/Users/pravachanpatra/Documents/PYTHON/DjangoApps/temp/venv/bin/python3.12
+#!/Users/pravachanpatra/Documents/PYTHON/DjangoApps/CrossMarketEcomAnalysisTool/venv/bin/python3.12
 # -*- coding: utf-8 -*-
 import re
 import sys
