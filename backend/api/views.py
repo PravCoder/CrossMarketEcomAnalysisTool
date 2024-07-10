@@ -92,16 +92,38 @@ def home(request):
     print(f"Context: {context}")
     return Response(context)
 
-@api_view(["GET"]) 
-def view_product(request, pk):
-    product = request.user.tracked_products.filter(id=int(pk))[0]
+@api_view(["GET"])  # gets product given id from all product-objects
+def get_product(request, pk):
+    product = Product.objects.get(id=int(pk))
     prod_serializer = ProductSerializer(product)
     return Response({"product":prod_serializer.data})
+
+@api_view(["GET"])  # gets product given id from cur-user tracked-product-lists
+def view_product(request, pk):
+    product = request.user.tracked_products.get(id=int(pk))
+    print(product)
+    prod_serializer = ProductSerializer(product)
+    return Response({"product":prod_serializer.data})
+
+@api_view(["GET"]) 
+def get_product_cross_products(request, pk):  # given product-id returns all of the products cross-product-objs
+    product = request.user.tracked_products.get(id=int(pk))
+    serialized_cross_products = []
+    for cross_product in list(product.cross_products.all()):
+        print(cross_product.id)
+        cross_product_serializer = ProductSerializer(cross_product)
+        serialized_cross_products.append(cross_product_serializer.data)
+
+    #print(serialized_cross_products)
+    return Response({"cross_products":serialized_cross_products})
 
 # TESTING STUFF BELOW
 foo_db = ["foo1","foo1","foo1","foo1","foo1" ]
 @api_view(["GET"]) # his view function will respond to HTTP GET requests. When a GET request is made to the corresponding URL (e.g., /api/hello-world/), this function will be invoked
 def get_foo(request):
+    request.user.tracked_products.add(Product.objects.get(id=13))
+    Product.objects.get(id=13).cross_products.add(Product.objects.get(id=14))
+    request.user.save()
     print(f"USER: {request.user}")
     for user in User.objects.all():
         print(user)

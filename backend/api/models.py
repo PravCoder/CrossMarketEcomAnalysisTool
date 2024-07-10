@@ -22,4 +22,6 @@ class Product(models.Model):
     UPC = models.CharField(max_length=200,null=True)
     website = models.CharField(max_length=200,null=True)
     url = models.CharField(max_length=1000,null=True)
+    # stores product-objs of same UPC-code but different platform
+    cross_products = models.ManyToManyField("Product", related_name="related_cross_products", blank=True)
 

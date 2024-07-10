@@ -3,17 +3,20 @@ import React, { useState, useEffect } from 'react';
 import api from "../api";
 
 
-function ProductInfo({prod_id}) {  // take in product-id as prop
+function ProductInfo({prod_id, is_cross}) {  // take in product-id as prop
     const [product, setProduct] = useState({});
     // get the product-obj
     useEffect(() => {
-    api.get(`/api/view-product/${prod_id}/`)
-        .then(response => {
-            setProduct(response.data.product);  
-        })
-        .catch(error => {
-            console.log(error);
-        });
+      const isCross = is_cross === "false";
+      const url = isCross ? `/api/view-product/${prod_id}/` : `/api/get-product/${prod_id}/`;
+
+      api.get(url)
+          .then(response => {
+              setProduct(response.data.product);
+          })
+          .catch(error => {
+              console.log(error);
+          });
     }, [])
 
     return (
