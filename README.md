@@ -1,4 +1,4 @@
-# E-commerce Price and Stock Tracker
+# E-commerce Price Cross Platform Tracker
 
 ## Purpose
 

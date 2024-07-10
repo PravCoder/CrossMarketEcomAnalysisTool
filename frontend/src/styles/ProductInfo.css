@@ -1,10 +1,19 @@
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding-top: 40px; /* Adjust this value to move the card closer or further from the top */
+    min-height: 100vh;
+}
+
 .product-info-container {
     background-color: #f8f9fa;
     border: 1px solid #ced4da;
     border-radius: 8px;
     padding: 20px;
-    margin-bottom: 20px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    width: 80%;
+    max-width: 500px;
 }
 
 .product-title {
@@ -18,11 +27,7 @@
     color: #007bff;
 }
 
-.product-website {
-    font-size: 16px;
-    color: #666;
-}
-
+.product-website,
 .product-upc {
     font-size: 16px;
     color: #666;
