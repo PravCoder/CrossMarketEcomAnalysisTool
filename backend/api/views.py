@@ -6,6 +6,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from .models import  User, Product
 from rest_framework.response import Response
 # Selenium imports
+import time
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
@@ -13,6 +14,7 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.keys import Keys
 import random
 
 class CreateUserView(generics.CreateAPIView):
@@ -20,22 +22,7 @@ class CreateUserView(generics.CreateAPIView):
     serializer_class = UserSerializer
     permission_classes = [AllowAny]
 
-
-@api_view(["GET"]) 
-def get_tracked_products_home(request):  # to get all tracked products by use rin the home page
-    user = request.user
-    all_products = list(user.tracked_products.all())
-    products_serializer = ProductSerializer(all_products, many=True)  # list of dicts each dict represents a product-obj with its attributes as key/values
-    return Response({"tracked_products":products_serializer.data})
-
-@api_view(["POST"]) 
-def home(request):
-    print(f"Post-request-data: {request.data}")
-    user = request.user
-    context = {}
-    url = request.data["url"]  # get url from post-request
-    website = "Amazon" if "amazon" in url else "Ebay" if "ebay" in url else None
-    
+def setup_scraper():
     # A user agent is a string of text that web browsers and other web applications send to servers to identify themselves. It includes details about the software and operating system of the client making the request. 
     user_agents = [
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3",
@@ -45,7 +32,7 @@ def home(request):
     user_agent = random.choice(user_agents)  # randomly choose a agent
     # Specify chrome-driver path and options
     chrome_options = Options()
-    chrome_options.add_argument("--headless")  # Run headless Chrome
+    # chrome_options.add_argument("--headless")  # Run headless Chrome
     chrome_options.add_argument("--disable-gpu")
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--disable-dev-shm-usage")
@@ -55,12 +42,49 @@ def home(request):
     service = Service(chrome_driver_path)
     # Initialize the WebDriver for Chrome
     driver = webdriver.Chrome(service=service, options=chrome_options)
+    return driver
+
+@api_view(["GET"]) 
+def get_tracked_products_home(request):  # to get all tracked products by use rin the home page
+    user = request.user
+    all_products = list(user.tracked_products.all())
+    products_serializer = ProductSerializer(all_products, many=True)  # list of dicts each dict represents a product-obj with its attributes as key/values
+    return Response({"tracked_products":products_serializer.data})
+
+def search_cross_products(main_product):
+    driver = setup_scraper()
+    if main_product.website == "amazon": # navigate to ebay url search product title and search all elements for upc
+        url = "https://www.ebay.com"
+        driver.get(url)
+        wait = WebDriverWait(driver, 10)
+        # find search bar and enter product title quote marks before the number: "81283712
+        search_query = f"'{main_product.UPC}" # search by main products UPC number
+        print(search_query)
+        search_box = driver.find_element(By.CSS_SELECTOR, ".gh-tb.ui-autocomplete-input")
+        search_box.send_keys(search_query)
+        search_box.send_keys(Keys.RETURN)
+        wait = WebDriverWait(driver, 10)
+        item_result = driver.find_element(By.CSS_SELECTOR, "a-size-mini.a-spacing-none.a-color-base.s-line-clamp-4")  # item that popped up in the search results. 
+        item_result.send_keys(Keys.RETURN)
+        print(item_result.accessible_name)
+
+        time.sleep(10)
+
+@api_view(["POST"]) 
+def home(request):
+    print(f"Post-request-data: {request.data}")
+    user = request.user
+    context = {}
+    url = request.data["url"]  # get url from post-request
+    website = "amazon" if "amazon" in url else "ebay" if "ebay" in url else None
+    
+    driver = setup_scraper()
     # Navigate to the URL
     driver.get(url)
     # Wait for the element to be present in the DOM
     wait = WebDriverWait(driver, 10)  # 10 seconds timeout
     # Get elements if website is Amazon
-    if website == "Amazon":  
+    if website == "amazon":  
         element_title = wait.until(EC.presence_of_element_located((By.ID, "productTitle")))  # extract html-element with id=productTitle
         element_price = wait.until(EC.presence_of_element_located((By.CLASS_NAME, "a-price-whole")))
         title  = element_title.text.strip() 
@@ -85,7 +109,8 @@ def home(request):
         print(f"Product Title: {new_product.title}")
         print(f"Product Price: ${new_product.price}")
         print(f"Product UPC: {new_product.UPC}")
-    if website == "Ebay":
+
+    if website == "ebay":
         pass
 
     driver.quit()
@@ -117,18 +142,29 @@ def get_product_cross_products(request, pk):  # given product-id returns all of 
     #print(serialized_cross_products)
     return Response({"cross_products":serialized_cross_products})
 
+
+
+
+
+
+
+
+
+
 # TESTING STUFF BELOW
 foo_db = ["foo1","foo1","foo1","foo1","foo1" ]
 @api_view(["GET"]) # his view function will respond to HTTP GET requests. When a GET request is made to the corresponding URL (e.g., /api/hello-world/), this function will be invoked
 def get_foo(request):
-    request.user.tracked_products.add(Product.objects.get(id=13))
-    Product.objects.get(id=13).cross_products.add(Product.objects.get(id=14))
-    request.user.save()
-    print(f"USER: {request.user}")
-    for user in User.objects.all():
-        print(user)
+    # request.user.tracked_products.add(Product.objects.get(id=13))
+    # Product.objects.get(id=13).cross_products.add(Product.objects.get(id=14))
+    # request.user.save()
+    # print(f"USER: {request.user}")
+    # for user in User.objects.all():
+    #     print(user)
 
     user_serializer = UserSerializer(request.user)
+    search_cross_products(Product.objects.get(id=16))
+
     return Response({'foo_list': foo_db, "user":user_serializer.data["email"]})
 
 @api_view(["POST"]) # his view function will respond to HTTP GET requests. When a GET request is made to the corresponding URL (e.g., /api/hello-world/), this function will be invoked

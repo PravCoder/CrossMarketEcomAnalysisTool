@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import api from "../api";
 
 
-// view product page loads in componenxts
+// view product page loads in components
 function ViewProduct() {
     const { id } = useParams();  // get id from url-path, apss it in component as prop
     const [crossProducts, setCrossProducts] = useState([]);
