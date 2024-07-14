@@ -15,3 +15,5 @@ urlpatterns = [
     path("get-foo/", views.get_foo, name="get-foo"),
     path("create-foo/", views.create_foo, name="create-foo"),
 ]
+
+# these are api-endpoints

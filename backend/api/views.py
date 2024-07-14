@@ -56,17 +56,20 @@ def search_cross_products(main_product):
     if main_product.website == "amazon": # navigate to ebay url search product title and search all elements for upc
         url = "https://www.ebay.com"
         driver.get(url)
-        wait = WebDriverWait(driver, 10)
+        wait = WebDriverWait(driver, 15)
         # find search bar and enter product title quote marks before the number: "81283712
         search_query = f"'{main_product.UPC}" # search by main products UPC number
         print(search_query)
         search_box = driver.find_element(By.CSS_SELECTOR, ".gh-tb.ui-autocomplete-input")
         search_box.send_keys(search_query)
         search_box.send_keys(Keys.RETURN)
-        wait = WebDriverWait(driver, 10)
-        item_result = driver.find_element(By.CSS_SELECTOR, "a-size-mini.a-spacing-none.a-color-base.s-line-clamp-4")  # item that popped up in the search results. 
-        item_result.send_keys(Keys.RETURN)
-        print(item_result.accessible_name)
+        
+        item_title = driver.find_element(By.CLASS_NAME, "s-item__image")  # item that popped up in the search results. 
+        
+        item_title.send_keys(Keys.RETURN)
+        print(item_title.accessible_name)
+
+        # Once clicked into the product if it has same UPC number, create Product object and add it to main_product.cross_products.add()
 
         time.sleep(10)
 
