@@ -11,11 +11,13 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.proxy import Proxy, ProxyType
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.keys import Keys
 import random
+from fake_useragent import UserAgent
 
 class CreateUserView(generics.CreateAPIView):
     queryset = User.objects.all()
@@ -24,24 +26,34 @@ class CreateUserView(generics.CreateAPIView):
 
 def setup_scraper():
     # A user agent is a string of text that web browsers and other web applications send to servers to identify themselves. It includes details about the software and operating system of the client making the request. 
-    user_agents = [
+    """user_agents = [
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3",
     "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.99 Safari/537.36",
     "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36",
-    ]
-    user_agent = random.choice(user_agents)  # randomly choose a agent
+    ]"""
+    # user_agent = random.choice(user_agents)  # randomly choose a agent
+
+    ua = UserAgent()
+    user_agent = ua.random
+    PROXY = "IpOfTheProxy:PORT" 
     # Specify chrome-driver path and options
     chrome_options = Options()
-    chrome_options.add_argument("--headless")  # Run headless Chrome
+    # chrome_options.add_argument("--headless")  # Run headless Chrome
     chrome_options.add_argument("--disable-gpu")
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--disable-dev-shm-usage")
     chrome_options.add_argument(f"user-agent={user_agent}")  # set user-agent
     chrome_options.binary_location = "/Applications/Google Chrome 2.app/Contents/MacOS/Google Chrome"
     chrome_driver_path = "/Users/pravachanpatra/Desktop/chromedriver-mac-arm64/chromedriver"
+    chrome_options.add_argument("--disable-blink-features=AutomationControlled")
+    chrome_options.add_argument("--no-proxy-server")
+
+
     service = Service(chrome_driver_path)
-    # Initialize the WebDriver for Chrome
     driver = webdriver.Chrome(service=service, options=chrome_options)
+    driver.set_window_size(1920, 1080)
+    driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
+
     return driver
 
 @api_view(["GET"]) 
@@ -54,7 +66,7 @@ def get_tracked_products_home(request):  # to get all tracked products by use ri
 def search_cross_products(main_product): # given a product-obj scrapers same object cross sites. 
     driver = setup_scraper()
     if main_product.website == "amazon": # navigate to ebay url search product title and search all elements for upc
-        url = "https://www.ebay.com"
+        url = "https://www.walmart.com"
         driver.get(url)
         wait = WebDriverWait(driver, 15)
         # find search bar and enter product title quote marks before the number: "81283712
@@ -62,7 +74,7 @@ def search_cross_products(main_product): # given a product-obj scrapers same obj
         # print(search_query)
         time.sleep(3)
         # Seach for item
-        search_box = driver.find_element(By.CSS_SELECTOR, ".gh-tb.ui-autocomplete-input")
+        search_box = driver.find_element(By.CSS_SELECTOR, ".flex-auto.lh-solid.sans-serif.search-bar.br-pill.f5.b--none.search-bar-redesigned-v2")
         search_box.send_keys(search_query)
         search_box.send_keys(Keys.RETURN)
         # Click first product
