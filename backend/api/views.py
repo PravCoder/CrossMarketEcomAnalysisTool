@@ -32,7 +32,7 @@ def setup_scraper():
     user_agent = random.choice(user_agents)  # randomly choose a agent
     # Specify chrome-driver path and options
     chrome_options = Options()
-    # chrome_options.add_argument("--headless")  # Run headless Chrome
+    chrome_options.add_argument("--headless")  # Run headless Chrome
     chrome_options.add_argument("--disable-gpu")
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--disable-dev-shm-usage")
@@ -51,7 +51,7 @@ def get_tracked_products_home(request):  # to get all tracked products by use ri
     products_serializer = ProductSerializer(all_products, many=True)  # list of dicts each dict represents a product-obj with its attributes as key/values
     return Response({"tracked_products":products_serializer.data})
 
-def search_cross_products(main_product):
+def search_cross_products(main_product): # given a product-obj scrapers same object cross sites. 
     driver = setup_scraper()
     if main_product.website == "amazon": # navigate to ebay url search product title and search all elements for upc
         url = "https://www.ebay.com"
@@ -59,19 +59,37 @@ def search_cross_products(main_product):
         wait = WebDriverWait(driver, 15)
         # find search bar and enter product title quote marks before the number: "81283712
         search_query = f"'{main_product.UPC}" # search by main products UPC number
-        print(search_query)
+        # print(search_query)
+        time.sleep(3)
+        # Seach for item
         search_box = driver.find_element(By.CSS_SELECTOR, ".gh-tb.ui-autocomplete-input")
         search_box.send_keys(search_query)
         search_box.send_keys(Keys.RETURN)
+        # Click first product
+        item_title = driver.find_element(By.CSS_SELECTOR, ".s-item__watchheart.on-image.s-item__watchheart--watch")  # item that popped up in the search results. 
+        print(item_title)
+        item_title.click()
+        print(driver.current_url)
+        # Get Product UPC
+        upc, price = None, None
+        elements = driver.find_elements(By.CLASS_NAME, "ux-textspans") 
+        for i, label_element in enumerate(list(elements)):
+            if label_element.text.strip() == "UPC":
+                upc = list(elements)[i].text.strip()
+            if "$" in label_element.text.strip():
+                price = list(elements)[i].text.strip()
         
-        item_title = driver.find_element(By.CLASS_NAME, "s-item__image")  # item that popped up in the search results. 
-        
-        item_title.send_keys(Keys.RETURN)
-        print(item_title.accessible_name)
-
         # Once clicked into the product if it has same UPC number, create Product object and add it to main_product.cross_products.add()
+        print("UPC: "+str(upc))
+        print("price: "+str(price))
+        if upc != None and main_product.upc == upc: 
+            new_prod = Product(title=main_product.title, price=price, UPC=upc, website="ebay", url=driver.current_url)
+            new_prod.save()
+            main_product.cross_products.add(new_prod)
+            main_product.save()
+        
 
-        time.sleep(10)
+        time.sleep(20)
 
 @api_view(["POST"]) 
 def home(request):
